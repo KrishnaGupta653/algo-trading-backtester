@@ -1,0 +1,80 @@
+# Compiler and flags
+CXX = g++
+CXXFLAGS = -std=c++17 -O3 -Wall -Wextra -pedantic
+LDFLAGS = -lm
+
+# Directories
+SRC_DIR = src
+INC_DIR = include
+BUILD_DIR = build
+DATA_DIR = data
+RESULTS_DIR = results
+
+# Source files
+SOURCES = $(SRC_DIR)/main.cpp \
+          $(SRC_DIR)/CSVParser.cpp \
+          $(SRC_DIR)/TechnicalIndicators.cpp \
+          $(SRC_DIR)/Backtester.cpp
+
+# Object files
+OBJECTS = $(SOURCES:$(SRC_DIR)/%.cpp=$(BUILD_DIR)/%.o)
+
+# Executable
+TARGET = $(BUILD_DIR)/backtester
+
+# Default target
+all: $(TARGET)
+
+# Create build directory
+$(BUILD_DIR):
+	mkdir -p $(BUILD_DIR)
+
+# Link executable
+$(TARGET): $(BUILD_DIR) $(OBJECTS)
+	$(CXX) $(CXXFLAGS) $(OBJECTS) -o $(TARGET) $(LDFLAGS)
+	@echo "Build complete! Run with: ./$(TARGET) <csv_file>"
+
+# Compile source files
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
+	$(CXX) $(CXXFLAGS) -I$(INC_DIR) -c $< -o $@
+
+# Clean build artifacts
+clean:
+	rm -rf $(BUILD_DIR)
+	rm -f $(RESULTS_DIR)/*.csv
+	@echo "Cleaned build directory"
+
+# Run with default parameters (requires AAPL.csv in data/)
+run: $(TARGET)
+	./$(TARGET) $(DATA_DIR)/AAPL.csv
+
+# Run with EMA and advanced features
+run-advanced: $(TARGET)
+	./$(TARGET) $(DATA_DIR)/AAPL.csv --ema --macd --stoploss 0.05 --takeprofit 0.15 --kelly
+
+# Run strategy comparison
+compare: $(TARGET)
+	./$(TARGET) $(DATA_DIR)/AAPL.csv --compare
+
+# Download sample data (requires Python)
+download-data:
+	@echo "Downloading sample stock data..."
+	@if [ -f scripts/download_stock_data.py ]; then \
+		cd scripts && python3 download_stock_data.py AAPL --years 10 --output ../$(DATA_DIR)/; \
+	else \
+		echo "Error: download_stock_data.py not found in scripts/"; \
+	fi
+
+# Help
+help:
+	@echo "Trading Backtester - Makefile Commands"
+	@echo "======================================"
+	@echo "make              - Build the project"
+	@echo "make run          - Run with default settings"
+	@echo "make run-advanced - Run with advanced features"
+	@echo "make compare      - Run strategy comparison"
+	@echo "make download-data- Download sample data"
+	@echo "make clean        - Remove build artifacts"
+	@echo "make help         - Show this help message"
+
+.PHONY: all clean run run-advanced compare download-data help
