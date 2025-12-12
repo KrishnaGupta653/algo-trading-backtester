@@ -82,7 +82,7 @@ int main(int argc, char* argv[]) {
     double commission = 0.001;
     bool useKelly = false;
     bool runComparison = false;
-    string outputFile = "results.csv";
+    string outputFile = "results/results.csv";
     
     for (int i = 2; i < argc; i++) {
         string arg = argv[i];

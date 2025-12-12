@@ -16,7 +16,14 @@ import argparse
 from datetime import datetime, timedelta
 import os
 import sys
-
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
+os.chdir(PROJECT_ROOT)
+def ensure_directories():
+    """Ensure all required project directories exist"""
+    required_dirs = ['data', 'results', 'build']
+    for directory in required_dirs:
+        os.makedirs(directory, exist_ok=True)
 # Popular Indian stocks (NSE)
 INDIAN_STOCKS = {
     'reliance': 'RELIANCE.NS',
@@ -51,7 +58,7 @@ US_STOCKS = {
 }
 
 
-def download_stock(symbol, years=10, output_dir='.'):
+def download_stock(symbol, years=10, output_dir='data'):
     """
     Download historical stock data from Yahoo Finance
     
@@ -118,7 +125,7 @@ def download_stock(symbol, years=10, output_dir='.'):
         return None
 
 
-def download_multiple(symbols, years=10, output_dir='.'):
+def download_multiple(symbols, years=10, output_dir='data'):
     """Download multiple stocks"""
     results = []
     
@@ -146,7 +153,7 @@ def download_multiple(symbols, years=10, output_dir='.'):
     return results
 
 
-def download_preset(preset, years=10, output_dir='.'):
+def download_preset(preset, years=10, output_dir='data'):
     """Download preset stock lists"""
     presets = {
         'indian_top10': [
@@ -199,6 +206,10 @@ def list_available():
 
 
 def main():
+    # os.makedirs('data', exist_ok=True)
+    # os.makedirs('results', exist_ok=True)
+    # os.makedirs('build', exist_ok=True)
+    ensure_directories()
     parser = argparse.ArgumentParser(
         description='Download historical stock data from Yahoo Finance',
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -231,7 +242,7 @@ Examples:
     
     parser.add_argument('symbols', nargs='*', help='Stock symbols to download')
     parser.add_argument('--years', type=int, default=10, help='Years of historical data (default: 10)')
-    parser.add_argument('--output', '-o', default='.', help='Output directory (default: current)')
+    parser.add_argument('--output', '-o', default='data', help='Output directory (default: data/)')
     parser.add_argument('--preset', choices=['indian_top10', 'us_top10', 'indian_it', 'indian_banks', 'us_tech'],
                        help='Download preset stock list')
     parser.add_argument('--list', '-l', action='store_true', help='List available stock shortcuts')

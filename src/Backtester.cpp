@@ -6,6 +6,11 @@
 #include <numeric>
 #include <cmath>
 #include <algorithm>
+#ifdef _WIN32
+#include <direct.h>
+#else
+#include <sys/stat.h>
+#endif
 using namespace std;
 Backtester::Backtester(const vector<OHLCV>& d,int shortMA, 
                        int longMA,
@@ -326,6 +331,12 @@ double Backtester::calculateYears(const string& start, const string& end) const 
 }
 
 void Backtester::exportResults(const string& filename) const {
+      // Create results directory if it doesn't exist
+    #ifdef _WIN32
+        _mkdir("results");
+    #else
+        mkdir("results", 0777);
+    #endif
     ofstream file(filename);
     
     file << "BACKTEST SUMMARY\n";
